@@ -3,7 +3,8 @@ var tuc = require("temp-units-conv");
 var request = require("request");
 var querystring = require("querystring");
 
-const url = "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
+const url =
+  "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
 const stationId = process.env.stationId;
 const stationPassword = process.env.stationPassword;
 
@@ -13,6 +14,7 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
   let { msg_type } = data;
   console.log(data);
   if (msg_type === 0) {
+    console.log(d);
     var req = {
       action: "updateraw",
       ID: stationId,
@@ -23,16 +25,18 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
       winddir: data.direction_deg
     };
     var queryObject = querystring.stringify(req);
-    console.log(url + queryObject);
+    // console.log(url + queryObject);
 
     request(
       {
         url: url + queryObject
       },
       function(error, response, body) {
-        console.log(response);
+        //console.log(response);
         console.log(body);
-        console.log(error);
+        if (error) {
+          console.log(error);
+        }
       }
     );
   }
