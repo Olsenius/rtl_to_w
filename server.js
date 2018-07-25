@@ -2,6 +2,7 @@ const { spawn } = require("child_process");
 var tuc = require("temp-units-conv");
 var request = require("request");
 var querystring = require("querystring");
+var kmhToMph = require('kmh-to-mph');
 
 const url =
   "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
@@ -21,7 +22,9 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
       dateutc: data.time,
       humidity: data.humidity,
       tempf: tuc.c2f(data.temperature_C),
-      winddir: data.direction_deg
+      winddir: data.direction_deg,
+      windspeedmph: kmhToMph(data.speed),
+      windgustmph : kmhToMph(data.gust)
     };
     var queryObject = querystring.stringify(req);
     // console.log(url + queryObject);
