@@ -14,7 +14,6 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
   let { msg_type } = data;
   console.log(data);
   if (msg_type === 0) {
-    console.log(d);
     var req = {
       action: "updateraw",
       ID: stationId,
