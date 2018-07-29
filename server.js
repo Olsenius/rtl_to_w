@@ -4,12 +4,15 @@ var request = require("request");
 var querystring = require("querystring");
 var kmhToMph = require('kmh-to-mph');
 var CBuffer = require('CBuffer');
+var dewpoint = require('dewpoint');
 
 const url =
   "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
 const stationId = process.env.stationId;
 const stationPassword = process.env.stationPassword;
+const stationElevation = process.env.stationElevation || 0;
 const mmToInch = 0.0393700787;
+const dp = new dewpoint(stationElevation);
 
 const timeMinusOneHour = (time => {
   var t = new Date(time);
@@ -46,7 +49,7 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
       windgustmph : kmhToMph(data.gust)
     };
 
-    var day = new Date().getDate();
+    var day = new Date().getDate(); //Local time, not UTC
     if (day !== currentDay) {
       rainAtMidnight = data.rain;
       currentDay = day;
@@ -71,6 +74,9 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
     console.log(`Rain last hour: ${rainLastHour} in mm`);
     console.log(`Rain last hour: ${rainLastHour * mmToInch} in inch`);
     req.rainin = rainLastHour * mmToInch;
+
+    var currentDp = dp.Calc(data.temperature_C, data.humidity);
+    req.dewptf = tuc.c2f(currentDp.dp);
 
     var queryObject = querystring.stringify(req);
 
