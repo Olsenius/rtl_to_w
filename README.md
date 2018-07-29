@@ -13,6 +13,7 @@ Register a new weather station on weather underground. Save the station id and p
 ```
 export stationId=<stationId>
 export stationPassword=<stationPassword>
+export stationElevation=<station elevation in meters>
 ```
 
 Clone and run the code
