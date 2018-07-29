@@ -29,6 +29,7 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
       action: "updateraw",
       ID: stationId,
       PASSWORD: stationPassword,
+      softwaretype: 'WH1080 Weather Station (rtl_to_w)',
       dateutc: data.time,
       humidity: data.humidity,
       tempf: tuc.c2f(data.temperature_C),
