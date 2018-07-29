@@ -1,0 +1,26 @@
+{ time: '2018-07-25 09:33:54',
+    model: 'Fine Offset Electronics WH1080/WH3080 Weather Station',
+    msg_type: 0,
+    id: 91,
+    temperature_C: 18.4,
+    humidity: 84,
+    direction_str: 'NW',
+    direction_deg: '315',
+    speed: 0,
+    gust: 0,
+    rain: 37.8,
+    battery: 'OK' }
+    
+
+    { time: '2018-07-28 18:20:18',
+        0|server  |   model: 'Fine Offset Electronics WH1080/WH3080 Weather Station',
+        0|server  |   msg_type: 0,
+        0|server  |   id: 91,
+        0|server  |   temperature_C: 26.5,
+        0|server  |   humidity: 47,
+        0|server  |   direction_str: 'SE',
+        0|server  |   direction_deg: '135',
+        0|server  |   speed: 13.464,
+        0|server  |   gust: 19.584,
+        0|server  |   rain: 37.8,
+        0|server  |   battery: 'OK' }

@@ -8,8 +8,12 @@ const url =
   "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
 const stationId = process.env.stationId;
 const stationPassword = process.env.stationPassword;
+const mmToInch = 0.0393700787;
 
 const rtl = spawn("rtl_433", ["-R", "32", "-f", "868300000", "-F", "json"]);
+
+var rainAtMidnight = 0;
+var currentDay = new Date().getDate() - 1;
 
 rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
   let { msg_type } = data;
@@ -26,8 +30,19 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
       windspeedmph: kmhToMph(data.speed),
       windgustmph : kmhToMph(data.gust)
     };
+
+    var day = new Date().getDate();
+    if (day !== currentDay) {
+      rainAtMidnight = data.rain;
+      currentDay = day;
+    }
+
+    var dailyRain = data.rain - rainAtMidnight;
+    console.log(`Daily rain: ${dailyRain} in mm`);
+    console.log(`Daily rain: ${dailyRain * mmToInch} in inch`);
+    req.rainin = dailyRain * mmToInch;
+
     var queryObject = querystring.stringify(req);
-    // console.log(url + queryObject);
 
     request(
       {
