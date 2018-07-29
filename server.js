@@ -15,10 +15,16 @@ const rtl = spawn("rtl_433", ["-R", "32", "-f", "868300000", "-F", "json"]);
 var rainAtMidnight = 0;
 var currentDay = new Date().getDate() - 1;
 
+var lastReport = null;
+
 rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
   let { msg_type } = data;
   console.log(data);
   if (msg_type === 0) {
+    if (data.time === lastReport)
+      return;
+    lastReport = data.time;
+
     var req = {
       action: "updateraw",
       ID: stationId,
