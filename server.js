@@ -3,6 +3,7 @@ var tuc = require("temp-units-conv");
 var request = require("request");
 var querystring = require("querystring");
 var kmhToMph = require('kmh-to-mph');
+var CBuffer = require('CBuffer');
 
 const url =
   "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?";
@@ -10,12 +11,19 @@ const stationId = process.env.stationId;
 const stationPassword = process.env.stationPassword;
 const mmToInch = 0.0393700787;
 
+const timeMinusOneHour = (time => {
+  var t = new Date(time);
+  t.setHours(t.getHours() -1);
+  return t;
+});
+
 const rtl = spawn("rtl_433", ["-R", "32", "-f", "868300000", "-F", "json"]);
 
 var rainAtMidnight = 0;
 var currentDay = new Date().getDate() - 1;
 
 var lastReport = null;
+var rainBuffer = new CBuffer(100); //Save last 100 readings since we get a reading every 48 seconds except some minutes radio silence around every hour.
 
 rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
   let { msg_type } = data;
@@ -24,7 +32,7 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
     if (data.time === lastReport)
       return;
     lastReport = data.time;
-
+    
     var req = {
       action: "updateraw",
       ID: stationId,
@@ -49,6 +57,21 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
     console.log(`Daily rain: ${dailyRain * mmToInch} in inch`);
     req.dailyrainin = dailyRain * mmToInch;
 
+    rainBuffer.push({
+      time: data.time,
+      rain: data.rain,
+    });
+
+    var rainReadingsLastHour = rainBuffer
+      .toArray()
+      .filter(reading => new Date(reading.time) > timeMinusOneHour(data.time))
+      .map(reading => reading.rain);
+
+    var rainLastHour = data.rain - Math.min(...rainReadingsLastHour);
+    console.log(`Rain last hour: ${rainLastHour} in mm`);
+    console.log(`Rain last hour: ${rainLastHour * mmToInch} in inch`);
+    req.rainin = rainLastHour * mmToInch;
+
     var queryObject = querystring.stringify(req);
 
     request(
@@ -56,7 +79,6 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
         url: url + queryObject
       },
       function(error, response, body) {
-        //console.log(response);
         console.log(body);
         if (error) {
           console.log(error);
