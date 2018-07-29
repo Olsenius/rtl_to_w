@@ -40,7 +40,7 @@ rtl.stdout.pipe(require("JSONStream").parse()).on("data", function(data) {
     var dailyRain = data.rain - rainAtMidnight;
     console.log(`Daily rain: ${dailyRain} in mm`);
     console.log(`Daily rain: ${dailyRain * mmToInch} in inch`);
-    req.rainin = dailyRain * mmToInch;
+    req.dailyrainin = dailyRain * mmToInch;
 
     var queryObject = querystring.stringify(req);
 
